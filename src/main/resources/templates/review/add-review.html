@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Write a Review')}"></head>
+<body class="page-auth">
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">⭐</span>
+            <h1>Write a Review</h1>
+            <p>Share your experience with <strong th:text="${booking.provider.user.fullName}"></strong></p>
+        </div>
+
+        <form th:action="@{/dashboard/review}" method="post" th:object="${reviewDto}" class="auth-form">
+            <input type="hidden" th:field="*{providerId}" th:value="${booking.provider.id}"/>
+            <input type="hidden" th:field="*{bookingId}" th:value="${booking.id}"/>
+
+            <div class="form-group">
+                <label>Your Rating</label>
+                <div class="star-rating">
+                    <input type="radio" name="rating" id="s5" value="5"/><label for="s5">★</label>
+                    <input type="radio" name="rating" id="s4" value="4"/><label for="s4">★</label>
+                    <input type="radio" name="rating" id="s3" value="3"/><label for="s3">★</label>
+                    <input type="radio" name="rating" id="s2" value="2"/><label for="s2">★</label>
+                    <input type="radio" name="rating" id="s1" value="1"/><label for="s1">★</label>
+                </div>
+                <span class="field-error" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Your Experience</label>
+                <textarea th:field="*{comment}" rows="5"
+                          placeholder="Tell others about your experience — what made it special, what you loved..."
+                          class="form-input form-textarea" required></textarea>
+                <span class="field-error" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></span>
+            </div>
+
+            <button type="submit" class="btn-auth">Submit Review →</button>
+            <a href="/dashboard" class="btn-back">← Back to Dashboard</a>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

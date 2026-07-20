@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Provider Dashboard')}"></head>
+<body class="page-dashboard">
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" th:text="${#strings.substring(user.fullName, 0, 1)}"></div>
+            <h3 th:text="${user.fullName}"></h3>
+            <span class="sidebar-role">Local Guide</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/provider/dashboard" class="sidebar-link active">📋 Overview</a>
+            <a href="/provider/dashboard/profile" class="sidebar-link">✏️ Edit Profile</a>
+            <a href="/providers" class="sidebar-link">🌐 Public Listing</a>
+        </nav>
+
+        <div th:if="${provider != null}" class="sidebar-toggle">
+            <form th:action="@{/provider/dashboard/toggle-availability}" method="post">
+                <button type="submit" class="toggle-btn"
+                        th:classappend="${provider.available ? 'toggle-available' : 'toggle-unavailable'}">
+                    <span th:if="${provider.available}">🟢 Mark Unavailable</span>
+                    <span th:unless="${provider.available}">🔴 Mark Available</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+
+        <!-- Setup prompt if no profile -->
+        <div th:if="${provider == null}" class="setup-prompt">
+            <div class="setup-icon">🗺️</div>
+            <h2>Complete Your Guide Profile</h2>
+            <p>Set up your profile to start receiving bookings from travellers.</p>
+            <a href="/provider/dashboard/profile" class="btn-new">Set Up Profile →</a>
+        </div>
+
+        <div th:if="${provider != null}">
+            <div class="dash-header">
+                <h1>Guide Dashboard</h1>
+                <a href="/provider/dashboard/profile" class="btn-outline-sm">Edit Profile</a>
+            </div>
+
+            <div th:if="${param.saved}" class="alert alert-success">Profile saved successfully!</div>
+
+            <!-- Stats -->
+            <div class="dash-stats">
+                <div class="dstat-card">
+                    <span class="dstat-icon">📅</span>
+                    <span class="dstat-val" th:text="${bookings.size()}"></span>
+                    <span class="dstat-label">Total Bookings</span>
+                </div>
+                <div class="dstat-card">
+                    <span class="dstat-icon">⭐</span>
+                    <span class="dstat-val" th:text="${#numbers.formatDecimal(provider.averageRating, 1, 1)}"></span>
+                    <span class="dstat-label">Avg Rating</span>
+                </div>
+                <div class="dstat-card">
+                    <span class="dstat-icon">💬</span>
+                    <span class="dstat-val" th:text="${reviews.size()}"></span>
+                    <span class="dstat-label">Reviews</span>
+                </div>
+                <div class="dstat-card">
+                    <span class="dstat-icon">💰</span>
+                    <span class="dstat-val">₹<span th:text="${#numbers.formatInteger(provider.pricePerDay, 1)}"></span></span>
+                    <span class="dstat-label">Per Day</span>
+                </div>
+            </div>
+
+            <!-- Bookings -->
+            <div class="section-block">
+                <h2>Booking Requests</h2>
+                <div th:if="${bookings.isEmpty()}" class="empty-state-sm">No bookings yet.</div>
+                <div class="bookings-list" th:unless="${bookings.isEmpty()}">
+                    <div th:each="b : ${bookings}" class="booking-card">
+                        <div class="booking-top">
+                            <div class="booking-guide-info">
+                                <div class="booking-avatar" th:text="${#strings.substring(b.user.fullName, 0, 1)}"></div>
+                                <div>
+                                    <h3 th:text="${b.user.fullName}"></h3>
+                                    <span th:text="${#temporals.format(b.bookingDate, 'dd MMM yyyy')} + ' · ' + b.numberOfDays + ' day(s)'"></span>
+                                </div>
+                            </div>
+                            <div class="booking-status" th:classappend="'status-' + ${#strings.toLowerCase(b.status.name())}"
+                                 th:text="${b.status}"></div>
+                        </div>
+                        <div class="booking-details">
+                            <div class="bdetail">
+                                <span class="bdetail-label">Amount</span>
+                                <span class="booking-amount">₹<span th:text="${#numbers.formatInteger(b.totalAmount, 1)}"></span></span>
+                            </div>
+                            <div class="bdetail" th:if="${b.specialRequests != null and !b.specialRequests.isEmpty()}">
+                                <span class="bdetail-label">Requests</span>
+                                <span th:text="${b.specialRequests}"></span>
+                            </div>
+                        </div>
+                        <div class="booking-actions" th:if="${b.status.name() == 'PENDING'}">
+                            <form th:action="@{/provider/dashboard/booking/{id}/confirm(id=${b.id})}" method="post" style="display:inline">
+                                <button type="submit" class="btn-confirm">✓ Confirm</button>
+                            </form>
+                            <form th:action="@{/provider/dashboard/booking/{id}/cancel(id=${b.id})}" method="post" style="display:inline">
+                                <button type="submit" class="btn-cancel">✗ Decline</button>
+                            </form>
+                        </div>
+                        <div class="booking-actions" th:if="${b.status.name() == 'CONFIRMED'}">
+                            <form th:action="@{/provider/dashboard/booking/{id}/complete(id=${b.id})}" method="post" style="display:inline">
+                                <button type="submit" class="btn-confirm">✓ Mark Complete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reviews -->
+            <div class="section-block">
+                <h2>Recent Reviews</h2>
+                <div th:if="${reviews.isEmpty()}" class="empty-state-sm">No reviews yet.</div>
+                <div class="reviews-list" th:unless="${reviews.isEmpty()}">
+                    <div th:each="r : ${reviews}" class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-avatar" th:text="${#strings.substring(r.user.fullName, 0, 1)}"></div>
+                            <div>
+                                <strong th:text="${r.user.fullName}"></strong>
+                                <div class="review-stars">
+                                    <span th:each="i : ${#numbers.sequence(1, r.rating)}">⭐</span>
+                                </div>
+                            </div>
+                            <span class="review-date" th:text="${#temporals.format(r.createdAt, 'dd MMM yyyy')}"></span>
+                        </div>
+                        <p class="review-comment" th:text="${r.comment}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

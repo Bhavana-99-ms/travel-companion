@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | WanderGuide'">WanderGuide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar">
+    <div class="nav-container">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">✦</span> WanderGuide
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/providers}" class="nav-link">Find Guides</a>
+            <div sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="nav-link">Login</a>
+                <a th:href="@{/register}" class="nav-btn">Join Free</a>
+            </div>
+            <div sec:authorize="isAuthenticated()" class="nav-auth">
+                <a sec:authorize="hasRole('PROVIDER')" th:href="@{/provider/dashboard}" class="nav-link">My Dashboard</a>
+                <a sec:authorize="hasRole('USER')" th:href="@{/dashboard}" class="nav-link">My Trips</a>
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <button type="submit" class="nav-link nav-logout">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<footer th:fragment="footer" class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <span class="brand-icon">✦</span> WanderGuide
+            <p>Connecting travellers with local experts since 2024.</p>
+        </div>
+        <div class="footer-links">
+            <a href="/providers">Find Guides</a>
+            <a href="/register">Become a Guide</a>
+            <a href="/login">Login</a>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2024 WanderGuide. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

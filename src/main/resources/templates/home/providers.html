@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Find Guides')}"></head>
+<body class="page-providers">
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="page-hero-small">
+    <div class="container">
+        <h1>Find Your Guide</h1>
+        <p>Explore verified local experts across India and beyond</p>
+    </div>
+</div>
+
+<section class="providers-section section">
+    <div class="container">
+
+        <!-- Search Bar -->
+        <form class="filter-bar" th:action="@{/providers}" method="get">
+            <input type="text" name="city" placeholder="Search by city..."
+                   th:value="${selectedCity}" class="filter-input"/>
+            <select name="serviceType" class="filter-select">
+                <option value="">All Types</option>
+                <option th:each="type : ${serviceTypes}"
+                        th:value="${type}"
+                        th:text="${#strings.replace(type.name(), '_', ' ')}"
+                        th:selected="${type.name() == selectedType}"></option>
+            </select>
+            <button type="submit" class="filter-btn">Search</button>
+            <a href="/providers" class="filter-clear">Clear</a>
+        </form>
+
+        <!-- Results Count -->
+        <div class="results-info">
+            <span th:text="${providers.size()} + ' guides found'"></span>
+        </div>
+
+        <!-- Grid -->
+        <div class="providers-grid" th:if="${!providers.isEmpty()}">
+            <div th:each="p : ${providers}" class="guide-card">
+                <div class="guide-card-top">
+                    <div class="guide-avatar" th:text="${#strings.substring(p.user.fullName, 0, 1)}"></div>
+                    <div class="guide-badge" th:if="${p.verified}">✓ Verified</div>
+                    <div class="guide-available" th:if="${p.available}">Available</div>
+                </div>
+                <div class="guide-card-body">
+                    <h3 th:text="${p.user.fullName}"></h3>
+                    <p class="guide-location">📍 <span th:text="${p.city + ', ' + (p.country ?: 'India')}"></span></p>
+                    <p class="guide-service" th:text="${#strings.replace(p.serviceType.name(), '_', ' ')}"></p>
+                    <p class="guide-exp"><span th:text="${p.yearsOfExperience}"></span> yrs experience</p>
+                    <p class="guide-langs">🗣 <span th:text="${p.languages}"></span></p>
+                    <div class="guide-meta">
+                        <span class="guide-rating">⭐ <span th:text="${#numbers.formatDecimal(p.averageRating, 1, 1)}"></span></span>
+                        <span class="guide-price">₹<span th:text="${#numbers.formatInteger(p.pricePerDay, 1)}"></span>/day</span>
+                    </div>
+                    <a th:href="@{/providers/{id}(id=${p.id})}" class="btn-view">View Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${providers.isEmpty()}" class="empty-state">
+            <div class="empty-icon">🧭</div>
+            <h3>No guides found</h3>
+            <p>Try a different city or experience type.</p>
+            <a href="/providers" class="btn-outline">Show All Guides</a>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

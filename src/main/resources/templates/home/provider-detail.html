@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Guide Profile')}"></head>
+<body class="page-detail">
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<section class="detail-section section">
+    <div class="container">
+        <div class="detail-grid">
+
+            <!-- Left: Profile -->
+            <div class="detail-left">
+                <div class="profile-card">
+                    <div class="profile-avatar-lg" th:text="${#strings.substring(provider.user.fullName, 0, 1)}"></div>
+                    <div class="profile-badge" th:if="${provider.verified}">✓ Verified Guide</div>
+                    <h1 th:text="${provider.user.fullName}"></h1>
+                    <p class="profile-location">📍 <span th:text="${provider.city + ', ' + (provider.country ?: 'India')}"></span></p>
+                    <div class="profile-type-tag" th:text="${#strings.replace(provider.serviceType.name(), '_', ' ')}"></div>
+                    <div class="profile-stats">
+                        <div class="pstat">
+                            <span class="pstat-val" th:text="${#numbers.formatDecimal(provider.averageRating, 1, 1)}"></span>
+                            <span class="pstat-label">Rating</span>
+                        </div>
+                        <div class="pstat">
+                            <span class="pstat-val" th:text="${provider.totalBookings}"></span>
+                            <span class="pstat-label">Bookings</span>
+                        </div>
+                        <div class="pstat">
+                            <span class="pstat-val" th:text="${provider.yearsOfExperience}"></span>
+                            <span class="pstat-label">Years Exp.</span>
+                        </div>
+                    </div>
+                    <div class="profile-price">
+                        <span class="price-amount">₹<span th:text="${#numbers.formatInteger(provider.pricePerDay, 1)}"></span></span>
+                        <span class="price-label">per day</span>
+                    </div>
+
+                    <div sec:authorize="hasRole('USER')">
+                        <a th:href="@{/dashboard/book/{id}(id=${provider.id})}" class="btn-book">Book This Guide</a>
+                    </div>
+                    <div sec:authorize="isAnonymous()">
+                        <a href="/login" class="btn-book">Login to Book</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Details -->
+            <div class="detail-right">
+                <div class="detail-section-block">
+                    <h2>About</h2>
+                    <p th:text="${provider.bio}"></p>
+                </div>
+
+                <div class="detail-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Languages</span>
+                        <span class="info-val" th:text="${provider.languages}"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Location</span>
+                        <span class="info-val" th:text="${provider.location}"></span>
+                    </div>
+                    <div class="info-item" th:if="${provider.certifications != null}">
+                        <span class="info-label">Certifications</span>
+                        <span class="info-val" th:text="${provider.certifications}"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Availability</span>
+                        <span class="info-val available-yes" th:if="${provider.available}">✓ Available</span>
+                        <span class="info-val available-no" th:unless="${provider.available}">✗ Not Available</span>
+                    </div>
+                </div>
+
+                <!-- Reviews -->
+                <div class="detail-section-block">
+                    <h2>Reviews (<span th:text="${provider.reviews.size()}"></span>)</h2>
+                    <div th:if="${provider.reviews.isEmpty()}" class="empty-reviews">
+                        No reviews yet. Be the first to book and review!
+                    </div>
+                    <div class="reviews-list" th:unless="${provider.reviews.isEmpty()}">
+                        <div th:each="r : ${provider.reviews}" class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-avatar" th:text="${#strings.substring(r.user.fullName, 0, 1)}"></div>
+                                <div>
+                                    <strong th:text="${r.user.fullName}"></strong>
+                                    <div class="review-stars">
+                                        <span th:each="i : ${#numbers.sequence(1, r.rating)}">⭐</span>
+                                    </div>
+                                </div>
+                                <span class="review-date" th:text="${#temporals.format(r.createdAt, 'MMM yyyy')}"></span>
+                            </div>
+                            <p class="review-comment" th:text="${r.comment}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

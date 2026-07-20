@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Home')}"></head>
+<body class="page-home">
+
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <span class="hero-eyebrow">Local Expertise. Real Experiences.</span>
+        <h1 class="hero-title">Discover the World<br/>Through Local Eyes</h1>
+        <p class="hero-sub">Connect with certified travel guides and local experts for authentic, unforgettable journeys.</p>
+
+        <form class="hero-search" th:action="@{/providers}" method="get">
+            <div class="search-box">
+                <input type="text" name="city" placeholder="Where do you want to go?" class="search-input"/>
+                <select name="serviceType" class="search-select">
+                    <option value="">All Experiences</option>
+                    <option th:each="type : ${serviceTypes}" th:value="${type}" th:text="${#strings.replace(type.name(), '_', ' ')}"></option>
+                </select>
+                <button type="submit" class="search-btn">Search Guides</button>
+            </div>
+        </form>
+    </div>
+    <div class="hero-scroll-indicator">↓</div>
+</section>
+
+<!-- Stats -->
+<section class="stats-strip">
+    <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Local Experts</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-num">80+</span><span class="stat-label">Destinations</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Average Rating</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-num">10K+</span><span class="stat-label">Happy Travellers</span></div>
+</section>
+
+<!-- Service Types -->
+<section class="categories section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">What We Offer</span>
+            <h2 class="section-title">Every Kind of Adventure</h2>
+        </div>
+        <div class="category-grid">
+            <a th:each="type : ${serviceTypes}" th:href="@{/providers(serviceType=${type})}" class="category-card">
+                <div class="category-icon" th:text="${
+                    type.name() == 'CITY_TOUR' ? '🏙️' :
+                    type.name() == 'HERITAGE_WALK' ? '🏛️' :
+                    type.name() == 'FOOD_TOUR' ? '🍜' :
+                    type.name() == 'ADVENTURE' ? '🧗' :
+                    type.name() == 'PHOTOGRAPHY_TOUR' ? '📷' :
+                    type.name() == 'NATURE_TREK' ? '🌿' :
+                    type.name() == 'CULTURAL_EXPERIENCE' ? '🎭' : '🗺️'
+                }"></div>
+                <span th:text="${#strings.replace(type.name(), '_', ' ')}"></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Top Guides -->
+<section class="top-guides section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Top Rated</span>
+            <h2 class="section-title">Meet Our Expert Guides</h2>
+        </div>
+        <div class="guides-grid" th:if="${!topProviders.isEmpty()}">
+            <div th:each="p : ${topProviders}" class="guide-card">
+                <div class="guide-card-top">
+                    <div class="guide-avatar" th:text="${#strings.substring(p.user.fullName, 0, 1)}"></div>
+                    <div class="guide-badge" th:if="${p.verified}">✓ Verified</div>
+                </div>
+                <div class="guide-card-body">
+                    <h3 th:text="${p.user.fullName}"></h3>
+                    <p class="guide-location">📍 <span th:text="${p.city}"></span></p>
+                    <p class="guide-service" th:text="${#strings.replace(p.serviceType.name(), '_', ' ')}"></p>
+                    <div class="guide-meta">
+                        <span class="guide-rating">⭐ <span th:text="${#numbers.formatDecimal(p.averageRating, 1, 1)}"></span></span>
+                        <span class="guide-price">₹<span th:text="${#numbers.formatInteger(p.pricePerDay, 1)}"></span>/day</span>
+                    </div>
+                    <a th:href="@{/providers/{id}(id=${p.id})}" class="btn-view">View Profile</a>
+                </div>
+            </div>
+        </div>
+        <div th:if="${topProviders.isEmpty()}" class="empty-state">
+            <p>No guides yet. <a href="/register">Be the first!</a></p>
+        </div>
+        <div class="section-cta">
+            <a href="/providers" class="btn-outline">Browse All Guides →</a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Simple Process</span>
+            <h2 class="section-title">How WanderGuide Works</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">01</div>
+                <h3>Search & Discover</h3>
+                <p>Browse verified local guides by city, experience type, or rating.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-num">02</div>
+                <h3>Book Instantly</h3>
+                <p>Choose your dates, number of days, and make a booking in seconds.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-num">03</div>
+                <h3>Explore & Review</h3>
+                <p>Enjoy your authentic local experience, then share your story.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="cta-banner">
+    <div class="container">
+        <h2>Are You a Local Expert?</h2>
+        <p>Turn your knowledge into income. Join hundreds of guides earning on WanderGuide.</p>
+        <a href="/register" class="btn-cta">Start Guiding Today →</a>
+    </div>
+</section>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

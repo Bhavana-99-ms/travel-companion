@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Book a Guide')}"></head>
+<body class="page-book">
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<section class="book-section section">
+    <div class="container container-sm">
+        <div class="book-card">
+            <div class="book-provider-preview">
+                <div class="book-avatar" th:text="${#strings.substring(provider.user.fullName, 0, 1)}"></div>
+                <div>
+                    <h2 th:text="${provider.user.fullName}"></h2>
+                    <p th:text="${provider.city}"></p>
+                    <span class="price-tag">₹<span th:text="${#numbers.formatInteger(provider.pricePerDay, 1)}"></span>/day</span>
+                </div>
+            </div>
+
+            <h3 class="book-form-title">Complete Your Booking</h3>
+
+            <form th:action="@{/dashboard/book}" method="post" th:object="${bookingDto}" class="auth-form">
+                <input type="hidden" th:field="*{providerId}" th:value="${provider.id}"/>
+
+                <div class="form-group">
+                    <label>Tour Start Date</label>
+                    <input type="date" th:field="*{bookingDate}" class="form-input" required/>
+                    <span class="field-error" th:if="${#fields.hasErrors('bookingDate')}" th:errors="*{bookingDate}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Days</label>
+                    <input type="number" th:field="*{numberOfDays}" min="1" max="30"
+                           placeholder="e.g. 3" class="form-input" required/>
+                    <span class="field-error" th:if="${#fields.hasErrors('numberOfDays')}" th:errors="*{numberOfDays}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Special Requests (Optional)</label>
+                    <textarea th:field="*{specialRequests}" rows="4"
+                              placeholder="Any special requirements, dietary needs, accessibility needs..."
+                              class="form-input form-textarea"></textarea>
+                </div>
+
+                <div class="price-estimate" id="priceEstimate">
+                    <span>Estimated Total:</span>
+                    <strong id="totalPrice">₹<span th:text="${#numbers.formatInteger(provider.pricePerDay, 1)}"></span></strong>
+                </div>
+
+                <button type="submit" class="btn-auth">Confirm Booking →</button>
+                <a href="/providers" class="btn-back">← Back to Guides</a>
+            </form>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:inline="javascript">
+const pricePerDay = [[${provider.pricePerDay}]];
+document.querySelector('[name="numberOfDays"]').addEventListener('input', function() {
+    const days = parseInt(this.value) || 1;
+    document.getElementById('totalPrice').textContent = '₹' + (pricePerDay * days).toLocaleString('en-IN');
+});
+</script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

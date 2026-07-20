@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Edit Profile')}"></head>
+<body class="page-auth">
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<div class="auth-container">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <span class="auth-icon">🗺️</span>
+            <h1>Guide Profile</h1>
+            <p>Tell travellers who you are and what you offer</p>
+        </div>
+
+        <form th:action="@{/provider/dashboard/profile}" method="post"
+              th:object="${profileDto}" class="auth-form">
+
+            <div class="form-group">
+                <label>Bio / About You</label>
+                <textarea th:field="*{bio}" rows="4" class="form-input form-textarea"
+                          placeholder="Tell travellers about yourself, your passion for the city, what makes your tours unique..."></textarea>
+                <span class="field-error" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Languages Spoken</label>
+                    <input type="text" th:field="*{languages}" class="form-input"
+                           placeholder="English, Hindi, Tamil..."/>
+                    <span class="field-error" th:if="${#fields.hasErrors('languages')}" th:errors="*{languages}"></span>
+                </div>
+                <div class="form-group">
+                    <label>Service Type</label>
+                    <select th:field="*{serviceType}" class="form-input">
+                        <option value="">-- Select --</option>
+                        <option th:each="type : ${serviceTypes}"
+                                th:value="${type}"
+                                th:text="${#strings.replace(type.name(), '_', ' ')}"></option>
+                    </select>
+                    <span class="field-error" th:if="${#fields.hasErrors('serviceType')}" th:errors="*{serviceType}"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" th:field="*{city}" class="form-input" placeholder="Mumbai"/>
+                    <span class="field-error" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></span>
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" th:field="*{country}" class="form-input" placeholder="India"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Location / Area of Operation</label>
+                <input type="text" th:field="*{location}" class="form-input"
+                       placeholder="South Mumbai, Fort area, Marine Drive..."/>
+                <span class="field-error" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Price Per Day (₹)</label>
+                    <input type="number" th:field="*{pricePerDay}" class="form-input"
+                           placeholder="2500" min="0"/>
+                </div>
+                <div class="form-group">
+                    <label>Years of Experience</label>
+                    <input type="number" th:field="*{yearsOfExperience}" class="form-input"
+                           placeholder="5" min="0" max="50"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Certifications (Optional)</label>
+                <input type="text" th:field="*{certifications}" class="form-input"
+                       placeholder="Govt. Licensed Guide, First Aid Certified..."/>
+            </div>
+
+            <button type="submit" class="btn-auth">Save Profile →</button>
+            <a href="/provider/dashboard" class="btn-back">← Back to Dashboard</a>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
